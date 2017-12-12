@@ -14,7 +14,8 @@ defmodule JsTracker.Application do
       supervisor(JsTrackerWeb.Endpoint, []),
       # Start your own worker by calling: JsTracker.Worker.start_link(arg1, arg2, arg3)
       # worker(JsTracker.Worker, [arg1, arg2, arg3]),
-      Chromesmith.child_spec(:chrome_pool, [process_pool_size: 1])
+      Chromesmith.child_spec(:chrome_pool, [process_pool_size: 1]),
+      worker(JsTracker.Scheduler, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

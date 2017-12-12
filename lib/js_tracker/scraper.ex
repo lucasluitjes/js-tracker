@@ -26,18 +26,19 @@ defmodule JsTracker.Scraper do
   end
 
   defp format_event(page_pid, response) do
-    # TODO clean this up
-    url = response["params"]["response"]["url"]
-    id = response["params"]["requestId"]
-    request_headers = response["params"]["response"]["headers"]
-    response_headers = response["params"]["response"]["requestHeaders"]
-    {:ok, body} = ChromeRemoteInterface.RPC.Network.getResponseBody(page_pid, %{requestId: id})
+    params = response["params"]
+    {:ok, body} = ChromeRemoteInterface.RPC.Network.getResponseBody(
+      page_pid,
+      %{requestId: params["requestId"]}
+    )
+
     body_hash = :crypto.hash(:sha256, body["result"]["body"])
     |> Base.encode16(case: :lower)
+    
     %{
-      url: url,
-      request_headers: request_headers,
-      response_headers: response_headers,
+      url: params["response"]["url"],
+      request_headers: params["response"]["headers"],
+      response_headers: params["response"]["requestHeaders"],
       body_hash: body_hash
     }
   end

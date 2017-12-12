@@ -108,4 +108,9 @@ defmodule JsTracker.Tracker do
     |> Recording.changeset(attrs)
     |> Repo.insert()
   end
+
+  def list_recordings do
+    Repo.all(Recording)
+  end
+
 end

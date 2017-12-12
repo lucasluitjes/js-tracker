@@ -1,10 +1,12 @@
 defmodule JsTracker.Scraper do
-  require IEx
+  alias JsTracker.{Scraper, Tracker}
+  alias ChromeRemoteInterface.PageSession
+  alias ChromeRemoteInterface.RPC.{Network, Page}
 
   def scrape_all do
-    JsTracker.Tracker.list_targets
+    Tracker.list_targets
     |> Enum.each(fn target ->
-      Task.start(JsTracker.Scraper, :scrape_and_save, [target])
+      Task.start(Scraper, :scrape_and_save, [target])
     end)
   end
 
@@ -13,17 +15,17 @@ defmodule JsTracker.Scraper do
     |> Enum.each(fn result ->
       result
       |> Map.put(:target_id, target.id)
-      |> JsTracker.Tracker.create_recording
+      |> Tracker.create_recording
     end)
   end
 
   def scrape(url) do
     {:ok, page_pid} = Chromesmith.checkout :chrome_pool, true
-    {:ok, _} = ChromeRemoteInterface.RPC.Network.enable(page_pid)
-    {:ok, _} = ChromeRemoteInterface.RPC.Page.enable(page_pid)
-    :ok = ChromeRemoteInterface.PageSession.subscribe(page_pid, "Page.loadEventFired")
-    :ok = ChromeRemoteInterface.PageSession.subscribe(page_pid, "Network.responseReceived")
-    {:ok, _} = ChromeRemoteInterface.RPC.Page.navigate(page_pid, %{url: url})
+    {:ok, _} = Network.enable(page_pid)
+    {:ok, _} = Page.enable(page_pid)
+    :ok = PageSession.subscribe(page_pid, "Page.loadEventFired")
+    :ok = PageSession.subscribe(page_pid, "Network.responseReceived")
+    {:ok, _} = Page.navigate(page_pid, %{url: url})
     result = collect_events(page_pid)
     :ok = Chromesmith.checkin :chrome_pool, true
     result
@@ -44,7 +46,7 @@ defmodule JsTracker.Scraper do
 
   defp format_event(page_pid, response) do
     params = response["params"]
-    {:ok, body} = ChromeRemoteInterface.RPC.Network.getResponseBody(
+    {:ok, body} = Network.getResponseBody(
       page_pid,
       %{requestId: params["requestId"]}
     )

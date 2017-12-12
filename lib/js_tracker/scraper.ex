@@ -1,5 +1,22 @@
 defmodule JsTracker.Scraper do
   require IEx
+
+  def scrape_all do
+    JsTracker.Tracker.list_targets
+    |> Enum.each(fn target ->
+      Task.start(JsTracker.Scraper, :scrape_and_save, [target])
+    end)
+  end
+
+  def scrape_and_save(target) do
+    scrape(target.url)
+    |> Enum.each(fn result ->
+      result
+      |> Map.put(:target_id, target.id)
+      |> JsTracker.Tracker.create_recording
+    end)
+  end
+
   def scrape(url) do
     {:ok, page_pid} = Chromesmith.checkout :chrome_pool, true
     {:ok, _} = ChromeRemoteInterface.RPC.Network.enable(page_pid)
@@ -34,7 +51,7 @@ defmodule JsTracker.Scraper do
 
     body_hash = :crypto.hash(:sha256, body["result"]["body"])
     |> Base.encode16(case: :lower)
-    
+
     %{
       url: params["response"]["url"],
       request_headers: params["response"]["headers"],

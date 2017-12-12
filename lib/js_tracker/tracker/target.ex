@@ -6,6 +6,7 @@ defmodule JsTracker.Tracker.Target do
 
   schema "targets" do
     field :url, :string
+    has_many :recordings, JsTracker.Tracker.Recording
 
     timestamps()
   end

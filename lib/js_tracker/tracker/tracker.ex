@@ -7,6 +7,7 @@ defmodule JsTracker.Tracker do
   alias JsTracker.Repo
 
   alias JsTracker.Tracker.Target
+  alias JsTracker.Tracker.Recording
 
   @doc """
   Returns the list of targets.
@@ -100,5 +101,11 @@ defmodule JsTracker.Tracker do
   """
   def change_target(%Target{} = target) do
     Target.changeset(target, %{})
+  end
+
+  def create_recording(attrs \\ %{}) do
+    %Recording{}
+    |> Recording.changeset(attrs)
+    |> Repo.insert()
   end
 end

@@ -24,7 +24,7 @@ config :logger, :console,
 
 config :js_tracker, JsTracker.Scheduler,
   jobs: [
-    {"* * * * *",      {IO, :puts, ["test"]}}
+    {"0 4 * * *",      {JsTracker.Scraper, :scrape_all, []}}
   ]
 
 # Import environment specific config. This must remain at the bottom

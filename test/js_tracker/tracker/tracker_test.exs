@@ -6,8 +6,8 @@ defmodule JsTracker.TrackerTest do
   describe "targets" do
     alias JsTracker.Tracker.Target
 
-    @valid_attrs %{url: "some url"}
-    @update_attrs %{url: "some updated url"}
+    @valid_attrs %{url: "https://google.com"}
+    @update_attrs %{url: "https://google.com/search"}
     @invalid_attrs %{url: nil}
 
     def target_fixture(attrs \\ %{}) do
@@ -31,7 +31,7 @@ defmodule JsTracker.TrackerTest do
 
     test "create_target/1 with valid data creates a target" do
       assert {:ok, %Target{} = target} = Tracker.create_target(@valid_attrs)
-      assert target.url == "some url"
+      assert target.url == "https://google.com"
     end
 
     test "create_target/1 with invalid data returns error changeset" do
@@ -42,7 +42,7 @@ defmodule JsTracker.TrackerTest do
       target = target_fixture()
       assert {:ok, target} = Tracker.update_target(target, @update_attrs)
       assert %Target{} = target
-      assert target.url == "some updated url"
+      assert target.url == "https://google.com/search"
     end
 
     test "update_target/2 with invalid data returns error changeset" do

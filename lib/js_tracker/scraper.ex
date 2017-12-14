@@ -5,13 +5,12 @@ defmodule JsTracker.Scraper do
 
   def scrape_all do
     Tracker.list_targets
-    |> Enum.each(fn target ->
-      Task.start(Scraper, :scrape_and_save, [target])
-    end)
+    |> Enum.each(& spawn fn -> Scraper.scrape_and_save(&1) end)
   end
 
   def scrape_and_save(target) do
-    scrape(target.url)
+    results = scrape(target.url)
+    results
     |> Enum.each(fn result ->
       result
       |> Map.put(:target_id, target.id)
@@ -52,7 +51,7 @@ defmodule JsTracker.Scraper do
     )
 
     body_hash = :crypto.hash(:sha256, body["result"]["body"])
-    |> Base.encode16(case: :lower)
+    body_hash = Base.encode16(body_hash, case: :lower)
 
     %{
       url: params["response"]["url"],

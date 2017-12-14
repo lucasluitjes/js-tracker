@@ -1,10 +1,10 @@
 defmodule JsTrackerWeb.UserSocket do
   use Phoenix.Socket
 
-  ## Channels
+  # Channels
   # channel "room:*", JsTrackerWeb.RoomChannel
 
-  ## Transports
+  # Transports
   transport :websocket, Phoenix.Transports.WebSocket
   # transport :longpoll, Phoenix.Transports.LongPoll
 

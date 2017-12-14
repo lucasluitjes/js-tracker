@@ -5,9 +5,7 @@ defmodule JsTracker.Tracker do
 
   import Ecto.Query, warn: false
   alias JsTracker.Repo
-
-  alias JsTracker.Tracker.Target
-  alias JsTracker.Tracker.Recording
+  alias JsTracker.Tracker.{Target, Recording, Resource}
 
   @doc """
   Returns the list of targets.
@@ -103,14 +101,35 @@ defmodule JsTracker.Tracker do
     Target.changeset(target, %{})
   end
 
-  def create_recording(attrs \\ %{}) do
+  def create_recording(resources, target) do
+    resources = for n <- resources, do: find_or_create_resource(n)
     %Recording{}
-    |> Recording.changeset(attrs)
+    |> Recording.changeset(%{target_id: target.id}, resources)
     |> Repo.insert()
   end
 
-  def list_recordings do
-    Repo.all(Recording)
+  def count_recordings do
+    Repo.one(from r in Recording, select: count("*"))
   end
 
+  def list_resources do
+    Repo.all(Resource)
+  end
+
+  def count_resources do
+    Repo.one(from r in Resource, select: count("*"))
+  end
+
+  def find_or_create_resource(r) do
+    case Repo.get_by(Resource, url: r.url, body_hash: r.body_hash) do
+      resource when is_nil(resource) -> create_resource(r)
+      resource -> resource
+    end
+  end
+
+  def create_resource(attrs \\ %{}) do
+    with {:ok, resource} <- %Resource{} |> Resource.changeset(attrs) |> Repo.insert() do
+      resource
+    end
+  end
 end

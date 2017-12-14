@@ -9,13 +9,9 @@ defmodule JsTracker.Scraper do
   end
 
   def scrape_and_save(target) do
-    target.url
+    {:ok, _} = target.url
     |> scrape()
-    |> Enum.each(fn result ->
-      result
-      |> Map.put(:target_id, target.id)
-      |> Tracker.create_recording
-    end)
+    |> Tracker.create_recording(target)
   end
 
   def scrape(url) do

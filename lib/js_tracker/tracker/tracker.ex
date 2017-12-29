@@ -111,6 +111,13 @@ defmodule JsTracker.Tracker do
     Target.changeset(target, %{})
   end
 
+  def paginate_recordings(target_id, params) do
+    Recording
+    |> where(target_id: ^target_id)
+    |> order_by(asc: :inserted_at)
+    |> Repo.paginate(params)
+  end
+
   def create_recording(resources, target) do
     resources = for n <- resources, do: find_or_create_resource(n)
     %Recording{}

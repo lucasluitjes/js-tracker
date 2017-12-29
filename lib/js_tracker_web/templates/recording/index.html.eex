@@ -1,0 +1,8 @@
+<ul>
+  <%= for recording <- @recordings do %>
+    <li>
+      <%= recording.inserted_at %>
+    </li>
+  <% end %>
+</ul>
+<%= paginate @conn, @kerosene %>

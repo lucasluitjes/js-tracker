@@ -3,7 +3,7 @@
   <%= for target <- @targets do %>
     <li>
       <%= target.url %>
-      <span><%# link "Show", to: target_path(@conn, :show, target), class: "btn btn-default btn-xs" %></span>
+      <span><%= link "Show recordings", to: recording_path(@conn, :index, target_id: target.id), class: "btn btn-default btn-xs" %></span>
     </li>
   <% end %>
 </ul>

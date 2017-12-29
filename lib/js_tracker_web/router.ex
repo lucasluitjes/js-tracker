@@ -18,6 +18,8 @@ defmodule JsTrackerWeb.Router do
 
     get "/", PageController, :index
     resources "/targets", TargetController
+    resources "/recordings", RecordingController, only: [:index]
+
   end
 
   # Other scopes may use custom stacks.

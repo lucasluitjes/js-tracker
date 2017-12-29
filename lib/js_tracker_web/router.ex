@@ -19,6 +19,7 @@ defmodule JsTrackerWeb.Router do
     get "/", PageController, :index
     resources "/targets", TargetController
     resources "/recordings", RecordingController, only: [:index]
+    resources "/resources", ResourceController, only: [:index]
 
   end
 

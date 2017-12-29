@@ -1,0 +1,7 @@
+<ul>
+  <%= for resource <- @resources do %>
+    <li>
+      <%= resource.url %>
+    </li>
+  <% end %>
+</ul>

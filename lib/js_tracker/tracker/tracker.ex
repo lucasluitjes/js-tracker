@@ -2,7 +2,7 @@ defmodule JsTracker.Tracker do
   @moduledoc """
   The Tracker context.
   """
-
+  require IEx
   import Ecto.Query, warn: false
   alias JsTracker.Repo
   alias JsTracker.Tracker.{Target, Recording, Resource}
@@ -131,6 +131,13 @@ defmodule JsTracker.Tracker do
 
   def list_resources do
     Repo.all(Resource)
+  end
+
+  def list_resources(recording_id) do
+    recording = Recording
+    |> Repo.get(recording_id)
+    |> Repo.preload([:resources])
+    recording.resources
   end
 
   def count_resources do

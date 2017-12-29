@@ -2,6 +2,7 @@
   <%= for recording <- @recordings do %>
     <li>
       <%= recording.inserted_at %>
+      <span><%= link "Show resources", to: resource_path(@conn, :index, recording_id: recording.id), class: "btn btn-default btn-xs" %></span>
     </li>
   <% end %>
 </ul>

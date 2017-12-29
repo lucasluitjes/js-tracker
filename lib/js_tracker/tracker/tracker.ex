@@ -21,6 +21,16 @@ defmodule JsTracker.Tracker do
   end
 
   @doc """
+  Returns the paginated list of targets
+
+  """
+  def paginate_targets(params) do
+    Target
+    |> order_by(asc: :inserted_at)
+    |> Repo.paginate(params)
+  end
+
+  @doc """
   Gets a single target.
 
   Raises `Ecto.NoResultsError` if the Target does not exist.

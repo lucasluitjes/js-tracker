@@ -33,6 +33,7 @@ defmodule JsTracker.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:kerosene, "~> 0.7.0"},
       {:phoenix, "~> 1.3.0"},
       {:quantum, ">= 2.2.0"},
       {:timex, "~> 3.0"},

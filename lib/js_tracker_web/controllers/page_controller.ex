@@ -1,7 +1,10 @@
 defmodule JsTrackerWeb.PageController do
   use JsTrackerWeb, :controller
 
-  def index(conn, _params) do
-    render conn, "index.html"
+  alias JsTracker.Tracker
+  
+  def index(conn, params) do
+    {targets, kerosene} = Tracker.paginate_targets(params)
+    render(conn, "index.html", targets: targets, kerosene: kerosene)
   end
 end

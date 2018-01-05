@@ -111,6 +111,12 @@ defmodule JsTracker.Tracker do
     Target.changeset(target, %{})
   end
 
+  def list_recordings do
+    Recording
+    |> order_by(asc: :inserted_at)
+    |> Repo.all
+  end
+
   def paginate_recordings(target_id, params) do
     Recording
     |> where(target_id: ^target_id)
@@ -120,9 +126,24 @@ defmodule JsTracker.Tracker do
 
   def create_recording(resources, target) do
     resources = for n <- resources, do: find_or_create_resource(n)
+    changed = changed_recording(target, resources)
     %Recording{}
-    |> Recording.changeset(%{target_id: target.id}, resources)
+    |> Recording.changeset(%{target_id: target.id, changed: changed}, resources)
     |> Repo.insert()
+  end
+
+  def changed_recording(target, resources) do
+    last = last_recording(target)
+    if last do
+      last.resources != resources
+    else
+      true
+    end
+  end
+
+  def last_recording(target) do
+    last = Repo.one(from x in Recording, order_by: [desc: x.id], limit: 1)
+    Repo.preload(last, :resources)
   end
 
   def count_recordings do

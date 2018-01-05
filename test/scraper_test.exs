@@ -26,4 +26,18 @@ defmodule JsTrackerTest do
     assert resource.url == "http://localhost:4001/js/app.js"
     assert resource.body_hash == "01645e09ad03b4f44cff57f2a008b35e031a181c2cbb672c4309d19ff2734ae7"
   end
+
+  test "Scrape a url multiple times and mark changes" do
+    {:ok, target} = Tracker.create_target(%{url: "http://localhost:4001"})
+    Scraper.scrape_and_save(target)
+    Scraper.scrape_and_save(target)
+    {:ok, target} = Tracker.update_target(target, %{url: "http://google.com"})
+    Scraper.scrape_and_save(target)
+    {:ok, target} = Tracker.update_target(target, %{url: "http://localhost:4001"})
+    Scraper.scrape_and_save(target)
+    Scraper.scrape_and_save(target)
+    recordings = for n <- Tracker.list_recordings, do: n.changed
+    assert recordings == [true, false, true, true, false]
+  end
+
 end

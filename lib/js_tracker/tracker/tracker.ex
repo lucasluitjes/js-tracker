@@ -35,8 +35,20 @@ defmodule JsTracker.Tracker do
 
   def paginate_targets(queryable, params) do
     queryable
-    |> order_by(asc: :inserted_at)
+    |> order_by(^sort_params(params))
     |> Repo.paginate(params)
+  end
+
+  defp sort_params(%{"sort_field" => f, "sort_order" => o}) do
+    {String.to_atom(o), String.to_atom(f)}
+  end
+
+  defp sort_params(%{"sort_field" => f}) do
+    {:asc, String.to_atom(f)}
+  end
+
+  defp sort_params(_) do
+    {:desc, :inserted_at}
   end
 
   @doc """

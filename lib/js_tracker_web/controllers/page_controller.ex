@@ -3,8 +3,17 @@ defmodule JsTrackerWeb.PageController do
 
   alias JsTracker.Tracker
 
+  def index(conn, params = %{"q" => query}) do
+    {targets, kerosene} =
+    query
+    |> Tracker.search_targets()
+    |> Tracker.paginate_targets(params)
+    render(conn, "index.html", targets: targets, kerosene: kerosene)
+  end
+
   def index(conn, params) do
     {targets, kerosene} = Tracker.paginate_targets(params)
     render(conn, "index.html", targets: targets, kerosene: kerosene)
   end
+
 end

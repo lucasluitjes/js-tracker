@@ -25,7 +25,16 @@ defmodule JsTracker.Tracker do
 
   """
   def paginate_targets(params) do
+    paginate_targets(Target, params)
+  end
+
+  def search_targets(query) do
     Target
+    |> where([t], ilike(t.url, ^"%#{query}%"))
+  end
+
+  def paginate_targets(queryable, params) do
+    queryable
     |> order_by(asc: :inserted_at)
     |> Repo.paginate(params)
   end

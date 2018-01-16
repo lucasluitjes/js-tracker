@@ -1,0 +1,24 @@
+<div class="row">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Last changed</th>
+          <th>External javascripts</th>
+          <th>Started tracking at</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for target <- @targets do %>
+          <tr>
+            <td><%= target.url %></td>
+            <td>Table cell</td>
+            <td><%= link "Show recordings", to: recording_path(@conn, :index, target_id: target.id), class: "btn btn-default btn-xs" %></td>
+            <td>Table cell</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -8,12 +8,12 @@ defmodule JsTrackerWeb.PageController do
     query
     |> Tracker.search_targets()
     |> Tracker.paginate_targets(params)
-    render(conn, "index.html", targets: targets, kerosene: kerosene)
+    render(conn, "index.html", targets: targets, kerosene: kerosene, query: query)
   end
 
   def index(conn, params) do
     {targets, kerosene} = Tracker.paginate_targets(params)
-    render(conn, "index.html", targets: targets, kerosene: kerosene)
+    render(conn, "index.html", targets: targets, kerosene: kerosene, query: "")
   end
 
 end

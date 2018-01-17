@@ -15,7 +15,7 @@
             <td><%= target.url %></td>
             <td>Table cell</td>
             <td><%= link "Show recordings", to: recording_path(@conn, :index, target_id: target.id), class: "btn btn-default btn-xs" %></td>
-            <td>Table cell</td>
+            <td><%= time_in_words(target.inserted_at) %></td>
           </tr>
         <% end %>
       </tbody>

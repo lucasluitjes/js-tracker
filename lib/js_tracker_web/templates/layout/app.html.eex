@@ -8,7 +8,9 @@
     <meta name="author" content="">
 
     <title>Hello JsTracker!</title>
+    <link rel="stylesheet" href="/font/css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+
   </head>
 
   <body>

@@ -3,10 +3,18 @@
     <table class="table table-hover">
       <thead>
         <tr>
-          <th>URL</th>
+          <th>
+            <a href="<%= page_path(@conn, :index, sort_order: "asc", sort_field: "url") %>" class="oi oi-sort-ascending"></a>
+            URL
+            <a href="<%= page_path(@conn, :index, sort_order: "desc", sort_field: "url") %>" class="oi oi-sort-descending"></a>
+          </th>
           <th>Last changed</th>
           <th>External javascripts</th>
-          <th>Started tracking at</th>
+          <th>
+            <a href="<%= page_path(@conn, :index, sort_order: "asc", sort_field: "inserted_at") %>" class="oi oi-sort-ascending"></a>
+            Started tracking at
+             <a href="<%= page_path(@conn, :index, sort_order: "desc", sort_field: "inserted_at") %>" class="oi oi-sort-descending"></a>
+          </th>
         </tr>
       </thead>
       <tbody>

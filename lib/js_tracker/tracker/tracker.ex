@@ -3,6 +3,7 @@ defmodule JsTracker.Tracker do
   The Tracker context.
   """
   require IEx
+  require Logger
   import Ecto.Query, warn: false
   alias JsTracker.Repo
   alias JsTracker.Tracker.{Target, Recording, Resource}
@@ -156,11 +157,18 @@ defmodule JsTracker.Tracker do
   def changed_recording(target, resources) do
     last = last_recording(target)
     if last do
+      log_inspect([target.url, (for n <- resources, do: [n.id, n.body_hash, n.url] )])
+      log_inspect([target.url, (for n <- last.resources, do: [n.id, n.body_hash, n.url] )])
       last.resources != resources
     else
       true
     end
   end
+
+  def log_inspect(obj) do
+    Logger.info "#{inspect(self())}#{inspect(obj)}"
+  end
+
 
   def last_recording(target) do
     last = Repo.one(from x in Recording, order_by: [desc: x.id], limit: 1)
@@ -194,8 +202,7 @@ defmodule JsTracker.Tracker do
   end
 
   def create_resource(attrs \\ %{}) do
-    with {:ok, resource} <- %Resource{} |> Resource.changeset(attrs) |> Repo.insert() do
-      resource
-    end
+    {:ok, resource} = %Resource{} |> Resource.changeset(attrs) |> Repo.insert()
+    resource
   end
 end

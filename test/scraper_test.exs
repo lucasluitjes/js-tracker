@@ -3,13 +3,13 @@ defmodule JsTrackerTest do
   alias JsTracker.{Scraper, Tracker}
 
   test "Scrape a url" do
-    [result | _] = Scraper.scrape("http://localhost:4001")
-    assert result.url == "http://localhost:4001/js/app.js"
-    assert result.body_hash == "01645e09ad03b4f44cff57f2a008b35e031a181c2cbb672c4309d19ff2734ae7"
+    [result | _] = Scraper.scrape("http://localhost:4001/test_mock/test.html")
+    assert result.url == "http://localhost:4001/test_mock/test.js"
+    assert result.body_hash == "b80112c06818d86d16f0185c023439b4364af3c61971b8eaeb90d6f094dc8a6b"
   end
 
   test "Scrape and save all urls" do
-    Tracker.create_target(%{url: "http://localhost:4001"})
+    Tracker.create_target(%{url: "http://localhost:4001/test_mock/test.html"})
 
     Scraper.scrape_all
     :timer.sleep(250)
@@ -23,17 +23,20 @@ defmodule JsTrackerTest do
     assert Tracker.count_recordings == 2
     assert Tracker.count_resources == 1
     assert recording1.resources == recording2.resources
-    assert resource.url == "http://localhost:4001/js/app.js"
-    assert resource.body_hash == "01645e09ad03b4f44cff57f2a008b35e031a181c2cbb672c4309d19ff2734ae7"
+    assert resource.url == "http://localhost:4001/test_mock/test.js"
+    assert resource.body_hash == "b80112c06818d86d16f0185c023439b4364af3c61971b8eaeb90d6f094dc8a6b"
   end
 
   test "Scrape a url multiple times and mark changes" do
-    {:ok, target} = Tracker.create_target(%{url: "http://localhost:4001"})
+    {:ok, target} = Tracker.create_target(%{url: "http://localhost:4001/test_mock/test.html"})
+    IO.puts "target_ur: #{target.url}"
     Scraper.scrape_and_save(target)
     Scraper.scrape_and_save(target)
     {:ok, target} = Tracker.update_target(target, %{url: "http://google.com"})
+    IO.puts "target_ur: #{target.url}"
     Scraper.scrape_and_save(target)
-    {:ok, target} = Tracker.update_target(target, %{url: "http://localhost:4001"})
+    {:ok, target} = Tracker.update_target(target, %{url: "http://localhost:4001/test_mock/test.html"})
+    IO.puts "target_ur: #{target.url}"
     Scraper.scrape_and_save(target)
     Scraper.scrape_and_save(target)
     recordings = for n <- Tracker.list_recordings, do: n.changed

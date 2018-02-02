@@ -1,9 +1,25 @@
-<ul>
-  <%= for recording <- @recordings do %>
-    <li>
-      <%= recording.inserted_at %>
-      <span><%= link "Show resources", to: resource_path(@conn, :index, recording_id: recording.id), class: "btn btn-default btn-xs" %></span>
-    </li>
-  <% end %>
-</ul>
+<div class="row">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>
+            Tracked at
+          </th>
+          <th>Changed</th>
+          <th>Resources</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for recording <- @recordings do %>
+          <tr>
+            <td><%= Elixir.Timex.Format.DateTime.Formatters.Relative.format!(recording.inserted_at, "{relative}") %></td>
+            <td><%= recording.changed %></td>
+            <td><%= link "Show resources", to: resource_path(@conn, :index, recording_id: recording.id), class: "btn btn-default btn-xs" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
 <%= paginate @conn, @kerosene %>

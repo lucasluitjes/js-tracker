@@ -38,7 +38,7 @@
               </li>
             </ul>
             <form class="form-inline my-2 my-lg-0" target="<%= page_path(@conn, :index) %>" method="get">
-              <input class="form-control mr-sm-2" type="search" placeholder="www.google.com" value="<%= @query %>" aria-label="Search" name="q">
+              <input class="form-control mr-sm-2" type="search" placeholder="www.google.com" value="<%= assigns[:query] %>" aria-label="Search" name="q">
               <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search Target</button>
             </form>
           </div>

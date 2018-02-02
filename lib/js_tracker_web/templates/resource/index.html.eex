@@ -2,6 +2,7 @@
   <%= for resource <- @resources do %>
     <li>
       <%= resource.url %>
+      <%= link "Details", to: resource_path(@conn, :show, resource), class: "btn btn-default btn-xs" %>
     </li>
   <% end %>
 </ul>

@@ -190,6 +190,8 @@ defmodule JsTracker.Tracker do
     recording.resources
   end
 
+  def get_resource!(id), do: Repo.get!(Resource, id)
+
   def count_resources do
     Repo.one(from r in Resource, select: count("*"))
   end

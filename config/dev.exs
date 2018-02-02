@@ -58,3 +58,9 @@ config :js_tracker, JsTracker.Repo,
   database: "js_tracker_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :js_tracker, basic_auth: [
+  username: "admin",
+  password: "admin",
+  realm: "Admin Area"
+]

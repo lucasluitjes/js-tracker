@@ -45,7 +45,8 @@ defmodule JsTracker.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:chromesmith, git: "https://github.com/andrewvy/chromesmith.git"},
-      {:dogma, "~> 0.1", only: :dev}
+      {:dogma, "~> 0.1", only: :dev},
+      {:basic_auth, "~> 2.2.2"}
     ]
   end
 

@@ -8,7 +8,12 @@
             URL
             <a href="<%= page_path(@conn, :index, sort_order: "desc", sort_field: "url") %>" class="oi oi-sort-descending"></a>
           </th>
-          <th>Last changed</th>
+          <th>
+            <a href="<%= page_path(@conn, :index, sort_order: "asc", sort_field: "changed_at") %>" class="oi oi-sort-ascending"></a>
+            Changed at
+              <a href="<%= page_path(@conn, :index, sort_order: "desc", sort_field: "changed_at") %>" class="oi oi-sort-descending"></a>
+          </th>
+
           <th>External javascripts</th>
           <th>
             <a href="<%= page_path(@conn, :index, sort_order: "asc", sort_field: "inserted_at") %>" class="oi oi-sort-ascending"></a>
@@ -21,7 +26,7 @@
         <%= for target <- @targets do %>
           <tr>
             <td><%= target.url %></td>
-            <td>Table cell</td>
+            <td><%= time_in_words(target.changed_at) %></td>
             <td><%= link "Show recordings", to: recording_path(@conn, :index, target_id: target.id), class: "btn btn-default btn-xs" %></td>
             <td><%= time_in_words(target.inserted_at) %></td>
           </tr>

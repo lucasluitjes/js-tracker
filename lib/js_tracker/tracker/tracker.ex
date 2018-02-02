@@ -26,30 +26,48 @@ defmodule JsTracker.Tracker do
 
   """
   def paginate_targets(params) do
-    paginate_targets(Target, params)
+    paginate_targets(list_targets_with_changed(), params)
   end
 
   def search_targets(query) do
-    Target
+    list_targets_with_changed()
     |> where([t], ilike(t.url, ^"%#{query}%"))
   end
 
   def paginate_targets(queryable, params) do
-    queryable
-    |> order_by(^sort_params(params))
-    |> Repo.paginate(params)
+    {sort_order, sort_field} = sort_params(params)
+    if sort_field == "changed_at" do
+      ordered = order_by(queryable, {^sort_order, fragment("changed_at")})
+    else
+      sort_field = String.to_atom(sort_field)
+      ordered = order_by(queryable, {^sort_order, ^sort_field})
+    end
+    ordered
+    |> Repo.paginate(params, total_count: count_targets)
+  end
+
+  def count_targets do
+    Repo.one(from t in Target, select: count("*"))
   end
 
   defp sort_params(%{"sort_field" => f, "sort_order" => o}) do
-    {String.to_atom(o), String.to_atom(f)}
+    {String.to_atom(o), f}
   end
 
   defp sort_params(%{"sort_field" => f}) do
-    {:asc, String.to_atom(f)}
+    {:asc, f}
   end
 
   defp sort_params(_) do
-    {:desc, :inserted_at}
+    {:desc, "inserted_at"}
+  end
+
+  defp list_targets_with_changed() do
+    from t in Target,
+      join: r in Recording, on: t.id == r.target_id,
+      select: %{t | changed_at: fragment("max(?) as changed_at", r.inserted_at)},
+      where: r.changed == true,
+      group_by: t.id
   end
 
   @doc """

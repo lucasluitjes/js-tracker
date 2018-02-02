@@ -24,6 +24,9 @@ defmodule JsTracker.Scraper do
     {:ok, _} = Page.enable(page_pid)
     :ok = PageSession.subscribe(page_pid, "Page.loadEventFired")
     :ok = PageSession.subscribe(page_pid, "Network.responseReceived")
+    # navigate to about:blank to ensure that we don't catch events from the previous session
+    {:ok, _} = Page.navigate(page_pid, %{url: "about:blank"})
+    collect_events(page_pid)
     {:ok, _} = Page.navigate(page_pid, %{url: url})
     IO.puts("start collect_events #{inspect(page_pid)}")
     result = collect_events(page_pid)

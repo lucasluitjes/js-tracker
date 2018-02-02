@@ -42,5 +42,4 @@ defmodule JsTrackerTest do
     recordings = for n <- Tracker.list_recordings, do: n.changed
     assert recordings == [true, false, true, true, false]
   end
-
 end

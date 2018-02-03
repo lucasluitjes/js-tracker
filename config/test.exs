@@ -17,3 +17,6 @@ config :js_tracker, JsTracker.Repo,
   database: "js_tracker_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :js_tracker, :stray_event_timeout, 1
+

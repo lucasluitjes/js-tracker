@@ -29,14 +29,11 @@ defmodule JsTrackerTest do
 
   test "Scrape a url multiple times and mark changes" do
     {:ok, target} = Tracker.create_target(%{url: "http://localhost:4001/test_mock/test.html"})
-    IO.puts "target_ur: #{target.url}"
     Scraper.scrape_and_save(target)
     Scraper.scrape_and_save(target)
     {:ok, target} = Tracker.update_target(target, %{url: "http://google.com"})
-    IO.puts "target_ur: #{target.url}"
     Scraper.scrape_and_save(target)
     {:ok, target} = Tracker.update_target(target, %{url: "http://localhost:4001/test_mock/test.html"})
-    IO.puts "target_ur: #{target.url}"
     Scraper.scrape_and_save(target)
     Scraper.scrape_and_save(target)
     recordings = for n <- Tracker.list_recordings, do: n.changed

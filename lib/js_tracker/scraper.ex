@@ -17,52 +17,72 @@ defmodule JsTracker.Scraper do
   end
 
   def scrape(url) do
-    Logger.info "#{inspect(self())}: #{url}"
+    Logger.info "Starting Scraper.scrape - #{inspect(self())}: #{url}"
     {:ok, page_pid} = Chromesmith.checkout :chrome_pool, true
-    IO.puts("checked out #{inspect(page_pid)}")
+    Logger.debug("checked out #{inspect(page_pid)}")
     {:ok, _} = Network.enable(page_pid)
     {:ok, _} = Page.enable(page_pid)
     :ok = PageSession.subscribe(page_pid, "Page.loadEventFired")
     :ok = PageSession.subscribe(page_pid, "Network.responseReceived")
     # navigate to about:blank to ensure that we don't catch events from the previous session
     {:ok, _} = Page.navigate(page_pid, %{url: "about:blank"})
-    collect_events(page_pid)
+    collect_events(page_pid, false)
     {:ok, _} = Page.navigate(page_pid, %{url: url})
-    IO.puts("start collect_events #{inspect(page_pid)}")
-    result = collect_events(page_pid)
-    IO.puts("done collecting events, checking in #{inspect(page_pid)}")
+    # to ensure we dont wait forever if Page.loadEventFired never arrives 
+    # (we cant use built in timeout of receive because we may still be 
+    # receiving Network.responseReceived regularly)
+    page_load_timeout = Process.send_after(self(), :page_load_timeout, 30000)
+    Logger.debug("start collect_events #{inspect(page_pid)}")
+    result = collect_events(page_pid, true)
+    Process.cancel_timer(page_load_timeout)
+    Logger.debug("done collecting events, checking in #{inspect(page_pid)}")
     :ok = Chromesmith.checkin :chrome_pool, true
-    IO.puts("checked in #{inspect(page_pid)}")
+    Logger.debug("checked in #{inspect(page_pid)}")
     result
     |> Enum.sort_by(fn(x) -> x.url end)
   end
 
-  defp collect_events(page_pid, results \\ []) do
+  defp collect_events(page_pid, collect_stray_events, results \\ []) do
     receive do
       {:chrome_remote_interface, "Page.loadEventFired", _response} ->
-        results
+        if collect_stray_events do 
+          # sometimes Network.responseReceived events come in right after 
+          # Page.loadEventFired so we collect events for a few more seconds
+          # after Page.loadEventFired
+          # (we cant use built in timeout of receive because we may still be 
+          # receiving Network.responseReceived regularly)
+          stray_event_timeout = Application.get_env(:js_tracker, :stray_event_timeout)
+          Process.send_after(self(), :stray_event_timeout, stray_event_timeout)
+          collect_events(page_pid, collect_stray_events, results)
+        else
+          results
+        end
       {:chrome_remote_interface, "Network.responseReceived", response} ->
         if response["params"]["type"] == "Script" do
-          collect_events(page_pid, [ format_event(page_pid, response) | results])
+          collect_events(page_pid, collect_stray_events, [ format_event(page_pid, response) | results])
         else
-          collect_events(page_pid, results)
+          collect_events(page_pid,collect_stray_events, results)
         end
+      :page_load_timeout ->
+        results
+      :stray_event_timeout ->
+        results
     end
   end
 
   defp format_event(page_pid, response) do
-    Logger.info "#{inspect(self())}: #{inspect(response)}"
+    Logger.debug "#{inspect(self())}: #{inspect(response)}"
     params = response["params"]
-    IO.puts("getting response body #{inspect(page_pid)} (#{params["response"]["url"]})")
+    Logger.debug("getting response body #{inspect(page_pid)} (#{params["response"]["url"]})")
     {:ok, body} = Network.getResponseBody(
       page_pid,
       %{requestId: params["requestId"]}
     )
-    IO.puts("    got response body #{inspect(page_pid)} (#{params["response"]["url"]})")
+    Logger.debug("    got response body #{inspect(page_pid)} (#{params["response"]["url"]})")
     body_hash = :sha256
     |> :crypto.hash(body["result"]["body"])
     |> Base.encode16(case: :lower)
-    # File.write(body_hash, body["result"]["body"])
+    File.write("scraped_files/#{body_hash}", body["result"]["body"])
 
 
     %{

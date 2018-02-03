@@ -24,7 +24,7 @@ config :logger, :console,
 
 config :js_tracker, JsTracker.Scheduler,
   jobs: [
-    # {"* * * * *",      {JsTracker.Scraper, :scrape_all, []}}
+    # {"*/2 * * * *",      {JsTracker.Scraper, :scrape_all, []}}
     {"0 4 * * *",      {JsTracker.Scraper, :scrape_all, []}}
   ]
 

@@ -183,11 +183,6 @@ defmodule JsTracker.Tracker do
     end
   end
 
-  def log_inspect(obj) do
-    Logger.info "#{inspect(self())}#{inspect(obj)}"
-  end
-
-
   def last_recording(target) do
     last = Repo.one(from x in Recording, order_by: [desc: x.id], limit: 1)
     Repo.preload(last, :resources)
@@ -224,5 +219,9 @@ defmodule JsTracker.Tracker do
   def create_resource(attrs \\ %{}) do
     {:ok, resource} = %Resource{} |> Resource.changeset(attrs) |> Repo.insert()
     resource
+  end
+
+  defp log_inspect(obj) do
+    Logger.debug "#{inspect(self())}#{inspect(obj)}"
   end
 end

@@ -18,15 +18,30 @@ defmodule JsTracker.Scraper do
 
   def scrape(url) do
     Logger.info "Starting Scraper.scrape - #{inspect(self())}: #{url}"
+    page_pid = checkout()
+    clear_page(page_pid)
+    result = navigate(page_pid, url)
+    checkin(page_pid)
+    result
+  end
+
+  defp checkout do
     {:ok, page_pid} = Chromesmith.checkout :chrome_pool, true
     Logger.debug("checked out #{inspect(page_pid)}")
     {:ok, _} = Network.enable(page_pid)
     {:ok, _} = Page.enable(page_pid)
     :ok = PageSession.subscribe(page_pid, "Page.loadEventFired")
     :ok = PageSession.subscribe(page_pid, "Network.responseReceived")
+    page_pid
+  end
+
+  defp clear_page(page_pid) do
     # navigate to about:blank to ensure that we don't catch events from the previous session
     {:ok, _} = Page.navigate(page_pid, %{url: "about:blank"})
     collect_events(page_pid, false)
+  end
+
+  defp navigate(page_pid, url) do
     {:ok, _} = Page.navigate(page_pid, %{url: url})
     # to ensure we dont wait forever if Page.loadEventFired never arrives 
     # (we cant use built in timeout of receive because we may still be 
@@ -35,11 +50,16 @@ defmodule JsTracker.Scraper do
     Logger.debug("start collect_events #{inspect(page_pid)}")
     result = collect_events(page_pid, true)
     Process.cancel_timer(page_load_timeout)
+    
+    Enum.sort_by(result, fn(x) -> x.url end)
+  end
+
+  defp checkin(page_pid) do
     Logger.debug("done collecting events, checking in #{inspect(page_pid)}")
+    :ok = PageSession.unsubscribe(page_pid, "Page.loadEventFired")
+    :ok = PageSession.unsubscribe(page_pid, "Network.responseReceived")
     :ok = Chromesmith.checkin :chrome_pool, true
     Logger.debug("checked in #{inspect(page_pid)}")
-    result
-    |> Enum.sort_by(fn(x) -> x.url end)
   end
 
   defp collect_events(page_pid, collect_stray_events, results \\ []) do

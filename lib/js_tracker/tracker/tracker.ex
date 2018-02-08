@@ -63,7 +63,7 @@ defmodule JsTracker.Tracker do
     {:desc, "inserted_at"}
   end
 
-  defp list_targets_with_changed() do
+  defp list_targets_with_changed do
     from t in Target,
       join: r in Recording, on: t.id == r.target_id,
       select: %{t | changed_at: fragment("max(?) as changed_at", r.inserted_at)},

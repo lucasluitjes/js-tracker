@@ -43,14 +43,14 @@ defmodule JsTracker.Scraper do
 
   defp navigate(page_pid, url) do
     {:ok, _} = Page.navigate(page_pid, %{url: url})
-    # to ensure we dont wait forever if Page.loadEventFired never arrives 
-    # (we cant use built in timeout of receive because we may still be 
+    # to ensure we dont wait forever if Page.loadEventFired never arrives
+    # (we cant use built in timeout of receive because we may still be
     # receiving Network.responseReceived regularly)
     page_load_timeout = Process.send_after(self(), :page_load_timeout, 30000)
     Logger.debug("start collect_events #{inspect(page_pid)}")
     result = collect_events(page_pid, true)
     Process.cancel_timer(page_load_timeout)
-    
+
     Enum.sort_by(result, fn(x) -> x.url end)
   end
 
@@ -75,14 +75,14 @@ defmodule JsTracker.Scraper do
     end
   end
 
-  # sometimes Network.responseReceived events come in right after 
+  # sometimes Network.responseReceived events come in right after
   # Page.loadEventFired so we collect events for a few more seconds
   # after Page.loadEventFired
-  # (we cant use built in timeout of receive because we may still be 
+  # (we cant use built in timeout of receive because we may still be
   # receiving Network.responseReceived regularly)
 
   defp handle_load_event(page_pid, collect_stray_events, results) do
-    if collect_stray_events do 
+    if collect_stray_events do
       stray_event_timeout = Application.get_env(:js_tracker, :stray_event_timeout)
       Process.send_after(self(), :stray_event_timeout, stray_event_timeout)
       collect_events(page_pid, false, results)
@@ -95,7 +95,7 @@ defmodule JsTracker.Scraper do
     if response["params"]["type"] == "Script" do
       collect_events(page_pid, collect_stray_events, [ format_event(page_pid, response) | results])
     else
-      collect_events(page_pid,collect_stray_events, results)
+      collect_events(page_pid, collect_stray_events, results)
     end
   end
 

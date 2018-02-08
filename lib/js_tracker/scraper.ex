@@ -38,7 +38,7 @@ defmodule JsTracker.Scraper do
   defp clear_page(page_pid) do
     # navigate to about:blank to ensure that we don't catch events from the previous session
     {:ok, _} = Page.navigate(page_pid, %{url: "about:blank"})
-    collect_events(page_pid, false)
+    collect_events(page_pid, true)
   end
 
   defp navigate(page_pid, url) do
@@ -73,7 +73,7 @@ defmodule JsTracker.Scraper do
           # receiving Network.responseReceived regularly)
           stray_event_timeout = Application.get_env(:js_tracker, :stray_event_timeout)
           Process.send_after(self(), :stray_event_timeout, stray_event_timeout)
-          collect_events(page_pid, collect_stray_events, results)
+          collect_events(page_pid, false, results)
         else
           results
         end

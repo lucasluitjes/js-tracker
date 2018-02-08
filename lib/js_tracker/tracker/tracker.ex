@@ -21,33 +21,34 @@ defmodule JsTracker.Tracker do
     Repo.all(Target)
   end
 
-  @doc """
-  Returns the paginated list of targets
-
-  """
-  def paginate_targets(params) do
-    paginate_targets(list_targets_with_changed(), params)
-  end
-
-  def search_targets(query) do
+  def list_targets(params) do
     list_targets_with_changed()
+    |> order_targets(sort_params(params))
+    |> Repo.paginate(params, total_count: count_targets())
+  end
+
+  def list_targets(params, query) do
+    list_targets_with_changed()
+    |> order_targets(sort_params(params))
     |> where([t], ilike(t.url, ^"%#{query}%"))
+    |> Repo.paginate(params, total_count: count_targets(query))
   end
 
-  def paginate_targets(queryable, params) do
-    {sort_order, sort_field} = sort_params(params)
-    if sort_field == "changed_at" do
-      ordered = order_by(queryable, {^sort_order, fragment("changed_at")})
-    else
-      sort_field = String.to_atom(sort_field)
-      ordered = order_by(queryable, {^sort_order, ^sort_field})
-    end
-    ordered
-    |> Repo.paginate(params, total_count: count_targets)
+  defp order_targets(queryable, %{"sort_field" => "changed_at", "sort_order" => o}) do
+    order_by(queryable, {^o, fragment("changed_at")})
   end
 
-  def count_targets do
+  defp order_targets(queryable, %{"sort_field" => f, "sort_order" => o}) do
+    f = String.to_atom(f)
+    order_by(queryable, {^o, ^f})
+  end
+
+  defp count_targets do
     Repo.one(from t in Target, select: count("*"))
+  end
+
+  defp count_targets(query) do
+    Repo.one(from t in Target, select: count("*"), where: ilike(t.url, ^"%#{query}%"))
   end
 
   defp sort_params(%{"sort_field" => f, "sort_order" => o}) do

@@ -34,11 +34,11 @@ defmodule JsTracker.Tracker do
     |> Repo.paginate(params, total_count: count_targets(query))
   end
 
-  defp order_targets(queryable, %{"sort_field" => "changed_at", "sort_order" => o}) do
+  defp order_targets(queryable, {o, "changed_at"}) do
     order_by(queryable, {^o, fragment("changed_at")})
   end
 
-  defp order_targets(queryable, %{"sort_field" => f, "sort_order" => o}) do
+  defp order_targets(queryable, {o, f}) do
     f = String.to_atom(f)
     order_by(queryable, {^o, ^f})
   end

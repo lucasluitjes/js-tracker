@@ -58,7 +58,7 @@ defmodule JsTracker.Scraper do
     Logger.debug("done collecting events, checking in #{inspect(page_pid)}")
     :ok = PageSession.unsubscribe(page_pid, "Page.loadEventFired")
     :ok = PageSession.unsubscribe(page_pid, "Network.responseReceived")
-    :ok = Chromesmith.checkin :chrome_pool, true
+    :ok = Chromesmith.checkin :chrome_pool, page_pid
     Logger.debug("checked in #{inspect(page_pid)}")
   end
 

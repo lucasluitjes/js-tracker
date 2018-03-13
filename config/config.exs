@@ -28,6 +28,8 @@ config :js_tracker, JsTracker.Scheduler,
     {"0 4 * * *",      {JsTracker.Scraper, :scrape_all, []}}
   ]
 
+config :js_tracker, :stray_event_timeout, 5000
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

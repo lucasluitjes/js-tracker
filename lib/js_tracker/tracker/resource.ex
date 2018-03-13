@@ -16,6 +16,6 @@ defmodule JsTracker.Tracker.Resource do
   def changeset(%Resource{} = resource, attrs) do
     resource
     |> cast(attrs, [:url, :body_hash, :request_headers, :response_headers])
-    |> validate_required([:url, :body_hash, :request_headers, :response_headers])
+    |> validate_required([:url, :body_hash])
   end
 end

@@ -170,7 +170,7 @@ defmodule JsTracker.Tracker do
     changed = changed_recording(target, resources)
     %Recording{}
     |> Recording.changeset(%{target_id: target.id, changed: changed}, resources)
-    |> Repo.insert()
+    |> Repo.insert(on_conflict: :nothing)
   end
 
   def changed_recording(target, resources) do

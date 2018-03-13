@@ -108,8 +108,8 @@ defmodule JsTracker.Scraper do
 
     %{
       url: params["response"]["url"],
-      request_headers: params["response"]["headers"],
-      response_headers: params["response"]["requestHeaders"],
+      response_headers: params["response"]["headers"],
+      request_headers: params["response"]["requestHeaders"],
       body_hash: body_hash
     }
   end

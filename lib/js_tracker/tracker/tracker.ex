@@ -166,7 +166,9 @@ defmodule JsTracker.Tracker do
   end
 
   def create_recording(resources, target) do
+    log_inspect(resources)
     resources = for n <- resources, do: find_or_create_resource(n)
+    resources = Enum.uniq_by(resources, fn(n) -> {n.url, n.body_hash} end)
     changed = changed_recording(target, resources)
     %Recording{}
     |> Recording.changeset(%{target_id: target.id, changed: changed}, resources)
@@ -211,10 +213,14 @@ defmodule JsTracker.Tracker do
   end
 
   def find_or_create_resource(r) do
-    case Repo.get_by(Resource, url: r.url, body_hash: r.body_hash) do
-      resource when is_nil(resource) -> create_resource(r)
-      resource -> resource
-    end
+    log_inspect(r)
+    {:ok, result} = Repo.transaction(fn() -> 
+      case Repo.get_by(limit(Resource, 1), url: r.url, body_hash: r.body_hash) do
+        resource when is_nil(resource) -> create_resource(r)
+        resource -> resource
+      end
+    end)
+    result
   end
 
   def create_resource(attrs \\ %{}) do
